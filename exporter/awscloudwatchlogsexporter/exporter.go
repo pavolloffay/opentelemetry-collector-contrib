@@ -12,7 +12,9 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
@@ -56,6 +58,10 @@ func newCwLogsPusher(ctx context.Context, expConfig *Config, params exp.Settings
 	awsConfig, err := awsutil.GetAWSConfig(ctx, params.Logger, &expConfig.AWSSessionSettings)
 	if err != nil {
 		return nil, err
+	}
+
+	if expConfig.AWSSessionSettings.RoleARN != "" {
+		awsConfig.Credentials = stscreds.NewAssumeRoleProvider(sts.NewFromConfig(awsConfig), expConfig.AWSSessionSettings.RoleARN)
 	}
 
 	// create CWLogs client with aws session config
