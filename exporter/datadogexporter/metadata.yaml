@@ -23,3 +23,7 @@ tests:
   goleak:
     setup: "setupTestMain(m)"
     skip: true
+
+schema:
+  enabled: true
+  config_type: "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/datadog/config.Config"
